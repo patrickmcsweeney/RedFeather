@@ -158,9 +158,6 @@ BLOCK
 		$variables["page"] .= "</form>\n";
 	}
 
-	foreach($variables['data'] as $file => $val){
-		$variables['page'] .= "<div>".$variables['data'][$file]['title']." - <a href='$file'>$file</a></div>";
-	}
 }
 
 function render_bottom()
