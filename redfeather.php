@@ -124,7 +124,7 @@ function render_resource()
 	$variables['page'] .= '<div class="rf_resource_metadata">';
 
 	$variables['page'] .= '<h2>Description</h2>';
-	$variables['page'] .= '<p>'.$data['title'].'</p>';
+	$variables['page'] .= '<p>'.$data['description'].'</p>';
 
 	$variables['page'] .= '<h2>Resource details</h2>';
 	$variables['page'] .= '<table><tbody>';
