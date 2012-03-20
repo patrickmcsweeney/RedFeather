@@ -7,7 +7,7 @@ $pages = array();
 $functions = array();
 $function_map = array('load_data'=>'load_data', 'save_data'=>'save_data', 'render_resource'=>'render_resource', 'render_top'=>'render_top', 'render_bottom'=>'render_bottom', 'render_manage_list'=>'render_manage_list');
 $variables = array('page'=>'');
-$variables['metadata_file'] = "mf_data.php";
+$variables['metadata_file'] = "rf_data.php";
 
 // ensures that the metadata file exists
 touch($variables['metadata_file']);
