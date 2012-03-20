@@ -96,7 +96,16 @@ function render_top()
 	$variables['page'] .= 
 '<html><head>
 	<title>'.$variables['page_title'].'</title>
-</head><body><div class="rf_content">';
+</head><body>
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, "script", "facebook-jssdk"));</script>
+<div class="rf_content">';
 }
 
 function render_resource()
@@ -128,9 +137,7 @@ function render_resource()
 	$variables['page'] .= '</div>';
 
 	$variables['page'] .= '<iframe src="http://docs.google.com/viewer?embedded=true&url='.urlencode($file_url).'" width="600" height="780" style="border: none;"></iframe>';
-#	foreach($variables['data'] as $file => $data){
-#		$variables['page'] .= '<div>'.$variables['data'][$file]['title']." - <a href='$file'>$file</a></div>";
-#	}
+	$variables['page'] .= '<div class="fb-comments" data-href="'.$this_url.'" data-num-posts="2" data-width="470"></div>';
 }
 
 function render_manage_list()
