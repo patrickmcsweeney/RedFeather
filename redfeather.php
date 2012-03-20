@@ -114,15 +114,17 @@ function render_manage_list()
 	global $variables;
 	$variables['page'] .= '<h1>RedFeather</h1>';
 
-	$manage_list = "";
 	$dir = "./";
 	if ($dh = opendir($dir)) {
 
-		#Probably breaks with windows and other things which dont use /
+		$new_file_count = 0;
+		$manage_resources_html = '';
+		
+		// Probably breaks with windows and other things which dont use /
 		$php_file = array_pop(explode("/", $_SERVER["SCRIPT_NAME"]));
 		$variables["page"] .= "<form action='$php_file?page=manage_resources' method='POST'>\n";
-		while (($file = readdir($dh)) !== false) {
-			
+		while (($file = readdir($dh)) !== false) {		
+	
 			if(is_dir($dir.$file)){continue;}
 			if($file == $php_file){continue;}
 			if($file == $variables["metadata_file"]){continue;}
@@ -130,23 +132,25 @@ function render_manage_list()
 
 
 			$file_line =  "filename: $file : filetype: " . filetype($dir . $file) . "<br />\n";
-			if (isset($variables["data"]["$file"])) {
-				$data = $variables["data"]["$file"];
+			if (isset($variables['data']["$file"])) {
+				$data = $variables['data']["$file"];
+				$new_style_rule = '';
 			}
 			else
 			{
 				$data = array('title'=>'','description'=>'');
-				$new_style_rule = " rf_new_resource";
+				$new_style_rule = ' rf_new_resource';
+				$new_file_count++;
 			}
 
-			$variables["page"] .= sprintf( <<<BLOCK
-<div class="metadata_input$new_style_rule">
+			$manage_resources_html .= sprintf( <<<BLOCK
+<div class="rf_metadata_input$new_style_rule">
 <table><tbody>
 <tr><td>File name:</td><td><a href='$file' target='_blank'>$file</td></tr>
-<tr><td>Title:</td><td><input name="titles[]" value="%s" /></td></tr>
-<tr><td>Description:</td><td><textarea name="descriptions[]">%s</textarea></td></tr>
+<tr><td>Title:</td><td><input name="titles[]" value="%s" autocomplete="off" /></td></tr>
+<tr><td>Description:</td><td><textarea name="descriptions[]" autocomplete="off">%s</textarea></td></tr>
 <tr><td>Licence:</td><td><select name="licence">
-	<option value="foo bar baz">Foo Bar Baz</option>
+	<option value="foo bar baz" autocomplete="off">Foo Bar Baz</option>
 </select></td></tr></tbody></table>
 <input type="hidden" name="filenames[]" value="$file" />
 </div>
@@ -155,6 +159,14 @@ BLOCK
 			
 		}
 		closedir($dh);
+		
+		// if there are any new resources give info at the top
+		if ($new_file_count)
+		{	
+			$variables["page"] .= "<p>$new_file_count new files found.</p>";
+		}
+	
+		$variables["page"] .= $manage_resources_html;
 		$variables["page"] .= "<input type='submit' value='Save' />\n";
 		$variables["page"] .= "</form>\n";
 	}
