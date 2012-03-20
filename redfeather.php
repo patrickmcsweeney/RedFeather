@@ -96,16 +96,37 @@ function render_top()
 	$variables['page'] .= 
 '<html><head>
 	<title>'.$variables['page_title'].'</title>
-</head><body>';
+</head><body><div class="rf_content">';
 }
 
 function render_resource()
 {
 	global $variables;
-	$variables['page'] .= '<h1>RedFeather</h1>';
+	$data = $variables['data'][$_REQUEST['file']];
+	$this_url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'?page=resource&file='.$_REQUEST['file'];
+	$file_url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['DOCUMENT_ROOT'].'/'.$_REQUEST['file'];
+	$variables['page'] .= '<h1>RedFeather - '.$data['title'].'</h1>';
 
-	foreach($variables['data'] as $file){
-		$variables['page'] .= "<div>".$variables['data'][$file]." - <a href='$file'>$file</a></div>";
+	$variables['page'] .= '<div class="rf_resource_main">';
+	
+	$variables['page'] .= '<div class="rf_resource_metadata">';
+
+	$variables['page'] .= '<h2>Description</h2>';
+	$variables['page'] .= '<p>'.$data['title'].'</p>';
+
+	$variables['page'] .= '<h2>Resource details</h2>';
+	$variables['page'] .= '<table><tbody>';
+
+	$variables['page'] .= '<tr><td>Updated:</td><td>'.date ("d F Y H:i:s.", filemtime($_REQUEST['file'])).'</td></tr>';
+	$variables['page'] .= '<tr><td>Licence:</td><td>'.$data['licence'].'</td></tr>';
+	$variables['page'] .= '<tr><td>Link here:</td><td>'.$this_url.'</td></tr>';
+	$variables['page'] .= '<tr><td>Link here:</td><td>'.$file_url.'</td></tr>';
+	$variables['page'] .= '</tbody></table>';
+
+	$variables['page'] .= '</div>';
+
+	foreach($variables['data'] as $file => $data){
+		$variables['page'] .= '<div>'.$variables['data'][$file]['title']." - <a href='$file'>$file</a></div>";
 	}
 }
 
@@ -163,6 +184,6 @@ BLOCK
 function render_bottom()
 {
 	global $variables;
-	$variables['page'] .= '</body>
+	$variables['page'] .= '</div></body>
 </html>';
 }
