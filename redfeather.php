@@ -119,17 +119,19 @@ function render_manage_list()
 
 
 			$file_line =  "filename: $file : filetype: " . filetype($dir . $file) . "<br />\n";
-			print "\n";
-			var_dump($file);
-			print "\n";
+			//print "\n";
+			//var_dump($file);
+			//print "\n";
 			$data = $variables["data"]["$file"];
 			$variables["page"] .= sprintf( <<<BLOCK
 <div class="metadata-input">
-<input name="titles[]" value="%s" /> <br />
-<textarea name="descriptions[]">%s</textarea> <br />
-<select name="licence">
-	<option value="foo bar baz" />
-</select><br />
+<table><tbody>
+<tr><td>File name:</td><td><a href='$file' target='_blank'>$file</td></tr>
+<tr><td>Title:</td><td><input name="titles[]" value="%s" /></td></tr>
+<tr><td>Description:</td><td><textarea name="descriptions[]">%s</textarea></td></tr>
+<tr><td>Licence:</td><td><select name="licence">
+	<option value="foo bar baz">Foo Bar Baz</option>
+</select></td></tr></tbody></table>
 <input type="hidden" name="filenames[]" value="$file" />
 </div>
 BLOCK
@@ -144,7 +146,6 @@ BLOCK
 	foreach($variables['data'] as $file => $val){
 		$variables['page'] .= "<div>".$variables['data'][$file]['title']." - <a href='$file'>$file</a></div>";
 	}
-	$variables["page"] .= $manage_list;
 }
 
 function render_bottom()
