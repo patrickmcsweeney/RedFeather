@@ -135,11 +135,12 @@ function render_manage_list()
 			}
 			else
 			{
-				$data = array("title"=>"Title","description"=>"Description");
+				$data = array('title'=>'','description'=>'');
+				$new_style_rule = " rf_new_resource";
 			}
 
 			$variables["page"] .= sprintf( <<<BLOCK
-<div class="metadata-input">
+<div class="metadata_input$new_style_rule">
 <table><tbody>
 <tr><td>File name:</td><td><a href='$file' target='_blank'>$file</td></tr>
 <tr><td>Title:</td><td><input name="titles[]" value="%s" /></td></tr>
