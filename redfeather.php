@@ -64,7 +64,7 @@ function load_data()
 
 function save_data()
 {
-	if(is_array($_REQUEST["filenames"]))
+	if(isset($_REQUEST["filenames"]) && is_array($_REQUEST["filenames"]))
 	{	
 		for($i=0; $i < count($_REQUEST["filenames"]); $i++)
 		{
@@ -115,8 +115,13 @@ function render_manage_list()
 			if(is_dir($dir.$file)){continue;}
 			if($file == $php_file){continue;}
 			if($file == "rf_meta.php"){continue;}
+			if(preg_match("/^\./", $file)){continue;}
+
 
 			$file_line =  "filename: $file : filetype: " . filetype($dir . $file) . "<br />\n";
+			print "\n";
+			var_dump($file);
+			print "\n";
 			$data = $variables["data"]["$file"];
 			$variables["page"] .= sprintf( <<<BLOCK
 <div class="metadata-input">
