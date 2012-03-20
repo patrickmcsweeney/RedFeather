@@ -1,0 +1,23 @@
+manage_resources page
+	- needs to embody a fairly simple workflow. i dont think we are too far off. We should include some blurb about best practices
+
+resource page
+	- duplicate the functionality in the big demo but lets have a slicker style sheet	
+
+browse page
+	- needs to list all the files we have metadata about in a clean way. Javascript search if its not too hard.
+
+RDF export
+	- straight forward serialization, got to be a bit careful about our choice of URIs
+
+RSS export
+	- if we can demo this working with expert JISC will be pleased
+
+JSON export
+	- maybe just test to find out if we are on php5.1 and use theres
+
+user sessions
+	- sooner or later we need to sort out a basic authentication
+
+Bulk upload
+	- gurn feature but you know we are gunna need it...
