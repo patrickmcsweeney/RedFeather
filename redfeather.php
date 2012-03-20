@@ -2,10 +2,16 @@
 ini_set('display_errors', 1);
 ini_set('log_errors', 1); 
 error_reporting(E_ALL);
+
 $pages = array();
 $functions = array();
 $function_map = array('load_data'=>'load_data', 'save_data'=>'save_data', 'render_resource'=>'render_resource', 'render_top'=>'render_top', 'render_bottom'=>'render_bottom', 'render_manage_list'=>'render_manage_list');
 $variables = array('page'=>'');
+$variables['metadata_file'] = "mf_data.php";
+
+// ensures that the metadata file exists
+touch($variables['metadata_file']);
+
 
 array_push($pages, 'resource');
 call_back_list('resource', array( 'load_data', 'render_top','render_resource','render_bottom'));
@@ -54,24 +60,29 @@ function call_back_list($function_name, $list=Null)
 function load_data()
 {
 	global $variables;
+
 	
-	$variables['data'] = unserialize(file_get_contents("rf_meta.php"));
-	if(! is_array($variables["data"]) )
+	$variables['data'] = unserialize(file_get_contents($variables['metadata_file']));
+
+	if(!is_array($variables["data"]) )
 	{
-		$variables['data'] = array();
+		$variables["data"]= array();
 	}
+
 }
 
 function save_data()
 {
-	if(isset($_REQUEST["filenames"]) && is_array($_REQUEST["filenames"]))
+	global $variables;
+
+	if(isset($_REQUEST['filenames']) && is_array($_REQUEST['filenames']))
 	{	
 		for($i=0; $i < count($_REQUEST["filenames"]); $i++)
 		{
 			$variables["data"][$_REQUEST["filenames"][$i]]["title"] = $_REQUEST["titles"][$i];
 			$variables["data"][$_REQUEST["filenames"][$i]]["description"] = $_REQUEST["descriptions"][$i];
 		}
-		$fh = fopen("rf_meta.php", "w");
+		$fh = fopen($variables["metadata_file"], "w");
 		fwrite($fh,serialize($variables['data']));
 		fclose($fh);
 
@@ -114,15 +125,20 @@ function render_manage_list()
 			
 			if(is_dir($dir.$file)){continue;}
 			if($file == $php_file){continue;}
-			if($file == "rf_meta.php"){continue;}
+			if($file == $variables["metadata_file"]){continue;}
 			if(preg_match("/^\./", $file)){continue;}
 
 
 			$file_line =  "filename: $file : filetype: " . filetype($dir . $file) . "<br />\n";
-			print "\n";
-			var_dump($file);
-			print "\n";
-			$data = $variables["data"]["$file"];
+
+			if (isset($variables["data"]["$file"])) {
+				$data = $variables["data"]["$file"];
+			}
+			else
+			{
+				$data = array("title"=>"Title","description"=>"Description");
+			}
+
 			$variables["page"] .= sprintf( <<<BLOCK
 <div class="metadata-input">
 <input name="titles[]" value="%s" /> <br />
