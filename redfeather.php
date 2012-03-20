@@ -4,6 +4,7 @@ ini_set('log_errors', 1);
 error_reporting(E_ALL);
 $pages = array();
 $functions = array();
+$function_map = array('load_data'=>'load_data', 'save_data'=>'save_data', 'render_resource'=>'render_resource', 'render_top'=>'render_top', 'render_bottom'=>'render_bottom', 'render_manage_list'=>'render_manage_list');
 $variables = array('page'=>'');
 
 array_push($pages, 'resource');
@@ -11,6 +12,7 @@ call_back_list('resource', array( 'load_data', 'render_top','render_resource','r
 
 array_push($pages, 'manage_resources');
 call_back_list('manage_resources', array( 'load_data', 'save_data', 'load_data', 'render_top','render_manage_list','render_bottom'));
+
 
 if(isset($_REQUEST['page']))
 {
@@ -23,12 +25,12 @@ else
 
 print $variables['page'];
 
-function call($function_name, $arg_array=array())
+function call($function_name)
 {
-	global $functions;
+	global $functions, $function_map;
 	foreach( $functions[$function_name] as $function )
 	{
-		call_user_func($function);
+		call_user_func($function_map[$function]);
 	}
 }
 
@@ -79,6 +81,7 @@ function save_data()
 function render_top()
 {
 	global $variables;
+	$variables['page_title'] = $_REQUEST['page'];
 	$variables['page'] .= 
 '<html><head>
 	<title>'.$variables['page_title'].'</title>
