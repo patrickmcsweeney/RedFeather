@@ -104,7 +104,9 @@ function render_resource()
 	global $variables;
 	$data = $variables['data'][$_REQUEST['file']];
 	$this_url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'?page=resource&file='.$_REQUEST['file'];
-	$file_url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['DOCUMENT_ROOT'].'/'.$_REQUEST['file'];
+	$bits = explode('/', $this_url);
+	array_pop($bits);
+	$file_url = implode('/', $bits).'/'.$_REQUEST['file'];
 	$variables['page'] .= '<h1>RedFeather - '.$data['title'].'</h1>';
 
 	$variables['page'] .= '<div class="rf_resource_main">';
@@ -125,9 +127,10 @@ function render_resource()
 
 	$variables['page'] .= '</div>';
 
-	foreach($variables['data'] as $file => $data){
-		$variables['page'] .= '<div>'.$variables['data'][$file]['title']." - <a href='$file'>$file</a></div>";
-	}
+	$variables['page'] .= '<iframe src="http://docs.google.com/viewer?embedded=true&url='.urlencode($file_url).'" width="600" height="780" style="border: none;"></iframe>';
+#	foreach($variables['data'] as $file => $data){
+#		$variables['page'] .= '<div>'.$variables['data'][$file]['title']." - <a href='$file'>$file</a></div>";
+#	}
 }
 
 function render_manage_list()
