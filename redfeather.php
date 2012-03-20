@@ -116,36 +116,34 @@ function render_manage_list()
 	$variables['page'] .= '<h1>RedFeather</h1>';
 
 	$dir = "./";
-	if ($dh = opendir($dir)) {
 
-		$new_file_count = 0;
-		$manage_resources_html = '';
-		$files_found_list = array();
+	$new_file_count = 0;
+	$manage_resources_html = '';
+	$files_found_list = array();
 		
-		// Probably breaks with windows and other things which dont use /
-		$php_file = array_pop(explode("/", $_SERVER["SCRIPT_NAME"]));
-		$variables["page"] .= "<form action='$php_file?page=manage_resources' method='POST'>\n";
-		while (($file = readdir($dh)) !== false) {		
-	
-			if(is_dir($dir.$file)){continue;}
-			if($file == $php_file){continue;}
-			if($file == $variables["metadata_file"]){continue;}
-			if(preg_match("/^\./", $file)){continue;}
+	// Probably breaks with windows and other things which dont use /
+	$php_file = array_pop(explode("/", $_SERVER["SCRIPT_NAME"]));
+	$variables["page"] .= "<form action='$php_file?page=manage_resources' method='POST'>\n";
+	foreach (scandir($dir) as $file)
+	{
 
+		if(is_dir($dir.$file)){continue;}
+		if($file == $php_file){continue;}
+		if($file == $variables["metadata_file"]){continue;}
+		if(preg_match("/^\./", $file)){continue;}
 
-			$file_line =  "filename: $file : filetype: " . filetype($dir . $file) . "<br />\n";
-			if (isset($variables['data']["$file"])) {
-				$data = $variables['data']["$file"];
-				array_push($files_found_list, $file);
-				$new_style_rule = '';
-			}
-			else
-			{
-				$data = array('title'=>'','description'=>'');
-				$new_style_rule = ' rf_new_resource';
-				$new_file_count++;
-			}
-
+		$file_line =  "filename: $file : filetype: " . filetype($dir . $file) . "<br />\n";
+		if (isset($variables['data']["$file"])) {
+			$data = $variables['data']["$file"];
+			array_push($files_found_list, $file);
+			$new_style_rule = '';
+		}
+		else
+		{
+			$data = array('title'=>'','description'=>'');
+			$new_style_rule = ' rf_new_resource';
+			$new_file_count++;
+		}
 			$manage_resources_html .= sprintf( <<<BLOCK
 <div class="rf_metadata_input$new_style_rule">
 <table><tbody>
@@ -160,36 +158,34 @@ function render_manage_list()
 BLOCK
 , $data["title"], $data["description"] );
 			
-		}
-		closedir($dh);
+	}
 		
-		// if there are any new resources give info at the top
-		if ($new_file_count)
-		{	
-			$variables["page"] .= "<p>$new_file_count new files found.</p>";
-		}
+	// if there are any new resources give info at the top
+	if ($new_file_count)
+	{	
+		$variables["page"] .= "<p>$new_file_count new files found.</p>";
+	}
 
-		// check whether any files are missing
-		$missing_resources_html = '';
-		$missing_resource_autonumber = 1;
+	// check whether any files are missing
+	$missing_resources_html = '';
+	$missing_resource_autonumber = 1;
 
-		foreach ($variables['data'] as $key => $value) {
-			if (! in_array($key, $files_found_list))
-			{
-				$missing_resources_html .= sprintf( <<<BLOCK
+	foreach ($variables['data'] as $key => $value) {
+		if (! in_array($key, $files_found_list))
+		{
+			$missing_resources_html .= sprintf( <<<BLOCK
 <div id="missing$missing_resource_autonumber"><p>Resource not found: $key <input type="hidden" name="titles[]" value="%s" /><input type="hidden" name="descriptions[]"/><input type="hidden" name="filenames[]" value="$key" /><a href="#" onclick="javascript:$('#missing$missing_resource_autonumber').remove();">delete metadata</a></p></div>
 </div>
 BLOCK
 , $value["title"], $value["description"] );
-				$missing_resource_autonumber++;
-			}
+			$missing_resource_autonumber++;
 		}
-	
-		$variables["page"] .= $missing_resources_html;
-		$variables["page"] .= $manage_resources_html;
-		$variables["page"] .= "<input type='submit' value='Save' />\n";
-		$variables["page"] .= "</form>\n";
 	}
+	
+	$variables["page"] .= $missing_resources_html;
+	$variables["page"] .= $manage_resources_html;
+	$variables["page"] .= "<input type='submit' value='Save' />\n";
+	$variables["page"] .= "</form>\n";
 
 }
 
