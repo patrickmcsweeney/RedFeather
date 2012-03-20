@@ -17,7 +17,7 @@ array_push($pages, 'resource');
 call_back_list('resource', array( 'load_data', 'render_top','render_resource','render_bottom'));
 
 array_push($pages, 'manage_resources');
-call_back_list('manage_resources', array( 'load_data', 'save_data', 'load_data', 'render_top','render_manage_list','render_bottom'));
+call_back_list('manage_resources', array( 'save_data', 'load_data', 'render_top','render_manage_list','render_bottom'));
 
 
 if(isset($_REQUEST['page']))
@@ -96,6 +96,7 @@ function render_top()
 	$variables['page'] .= 
 '<html><head>
 	<title>'.$variables['page_title'].'</title>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
 </head><body>
 <div id="fb-root"></div>
 <script>(function(d, s, id) {
@@ -145,49 +146,77 @@ function render_manage_list()
 	global $variables;
 	$variables['page'] .= '<h1>RedFeather</h1>';
 
-	$manage_list = "";
 	$dir = "./";
-	if ($dh = opendir($dir)) {
 
-		#Probably breaks with windows and other things which dont use /
-		$php_file = array_pop(explode("/", $_SERVER["SCRIPT_NAME"]));
-		$variables["page"] .= "<form action='$php_file?page=manage_resources' method='POST'>\n";
-		while (($file = readdir($dh)) !== false) {
-			
-			if(is_dir($dir.$file)){continue;}
-			if($file == $php_file){continue;}
-			if($file == $variables["metadata_file"]){continue;}
-			if(preg_match("/^\./", $file)){continue;}
+	$new_file_count = 0;
+	$manage_resources_html = '';
+	$files_found_list = array();
+		
+	// Probably breaks with windows and other things which dont use /
+	$php_file = array_pop(explode("/", $_SERVER["SCRIPT_NAME"]));
+	$variables["page"] .= "<form action='$php_file?page=manage_resources' method='POST'>\n";
+	foreach (scandir($dir) as $file)
+	{
 
+		if(is_dir($dir.$file)){continue;}
+		if($file == $php_file){continue;}
+		if($file == $variables["metadata_file"]){continue;}
+		if(preg_match("/^\./", $file)){continue;}
 
-			$file_line =  "filename: $file : filetype: " . filetype($dir . $file) . "<br />\n";
-			if (isset($variables["data"]["$file"])) {
-				$data = $variables["data"]["$file"];
-			}
-			else
-			{
-				$data = array("title"=>"Title","description"=>"Description");
-			}
-
-			$variables["page"] .= sprintf( <<<BLOCK
-<div class="metadata-input">
+		$file_line =  "filename: $file : filetype: " . filetype($dir . $file) . "<br />\n";
+		if (isset($variables['data']["$file"])) {
+			$data = $variables['data']["$file"];
+			array_push($files_found_list, $file);
+			$new_style_rule = '';
+		}
+		else
+		{
+			$data = array('title'=>'','description'=>'');
+			$new_style_rule = ' rf_new_resource';
+			$new_file_count++;
+		}
+			$manage_resources_html .= sprintf( <<<BLOCK
+<div class="rf_metadata_input$new_style_rule">
 <table><tbody>
 <tr><td>File name:</td><td><a href='$file' target='_blank'>$file</td></tr>
-<tr><td>Title:</td><td><input name="titles[]" value="%s" /></td></tr>
-<tr><td>Description:</td><td><textarea name="descriptions[]">%s</textarea></td></tr>
+<tr><td>Title:</td><td><input name="titles[]" value="%s" autocomplete="off" /></td></tr>
+<tr><td>Description:</td><td><textarea name="descriptions[]" autocomplete="off">%s</textarea></td></tr>
 <tr><td>Licence:</td><td><select name="licence">
-	<option value="foo bar baz">Foo Bar Baz</option>
+	<option value="foo bar baz" autocomplete="off">Foo Bar Baz</option>
 </select></td></tr></tbody></table>
 <input type="hidden" name="filenames[]" value="$file" />
 </div>
 BLOCK
 , $data["title"], $data["description"] );
 			
-		}
-		closedir($dh);
-		$variables["page"] .= "<input type='submit' value='Save' />\n";
-		$variables["page"] .= "</form>\n";
 	}
+		
+	// if there are any new resources give info at the top
+	if ($new_file_count)
+	{	
+		$variables["page"] .= "<p>$new_file_count new files found.</p>";
+	}
+
+	// check whether any files are missing
+	$missing_resources_html = '';
+	$missing_resource_autonumber = 1;
+
+	foreach ($variables['data'] as $key => $value) {
+		if (! in_array($key, $files_found_list))
+		{
+			$missing_resources_html .= sprintf( <<<BLOCK
+<div id="missing$missing_resource_autonumber"><p>Resource not found: $key <input type="hidden" name="titles[]" value="%s" /><input type="hidden" name="descriptions[]"/><input type="hidden" name="filenames[]" value="$key" /><a href="#" onclick="javascript:$('#missing$missing_resource_autonumber').remove();">delete metadata</a></p></div>
+</div>
+BLOCK
+, $value["title"], $value["description"] );
+			$missing_resource_autonumber++;
+		}
+	}
+	
+	$variables["page"] .= $missing_resources_html;
+	$variables["page"] .= $manage_resources_html;
+	$variables["page"] .= "<input type='submit' value='Save' />\n";
+	$variables["page"] .= "</form>\n";
 
 }
 
