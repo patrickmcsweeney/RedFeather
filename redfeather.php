@@ -8,6 +8,7 @@ $functions = array();
 $function_map = array('load_data'=>'load_data', 'save_data'=>'save_data', 'render_resource'=>'render_resource', 'render_top'=>'render_top', 'render_bottom'=>'render_bottom', 'render_manage_list'=>'render_manage_list');
 $variables = array('page'=>'');
 $variables['metadata_file'] = "rf_data.php";
+$variables['plugin_dir'] = "rf_plugins";
 
 // ensures that the metadata file exists
 touch($variables['metadata_file']);
@@ -19,6 +20,21 @@ call_back_list('resource', array( 'load_data', 'render_top','render_resource','r
 array_push($pages, 'manage_resources');
 call_back_list('manage_resources', array( 'save_data', 'load_data', 'render_top','render_manage_list','render_bottom'));
 
+if(is_dir($variables["plugin_dir"]))
+{
+	if ($dh = opendir($variables["plugin_dir"])) 
+	{
+		while (($file = readdir($dh)) !== false) 
+		{
+			if(is_file($variables['plugin_dir'].'/'.$file) && preg_match('/\.php$/', $file))
+			{
+				include($variables['plugin_dir'].'/'.$file);
+			}
+		}
+		closedir($dh);
+	}
+
+}
 
 if(isset($_REQUEST['page']))
 {
@@ -31,6 +47,8 @@ else
 
 print $variables['page'];
 
+
+// FUNCTIONS FROM HERE ON DOWN
 function call($function_name)
 {
 	global $functions, $function_map;
@@ -101,15 +119,7 @@ function render_top()
 	<link rel="stylesheet" href="http://meyerweb.com/eric/tools/css/reset/reset.css" type="text/css" />
 	<link rel="stylesheet" href="style" type="text/css" />
 </head><body>
-<div id="fb-root"></div>
-<script>(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) return;
-  js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1";
-  fjs.parentNode.insertBefore(js, fjs);
-}(document, "script", "facebook-jssdk"));</script>';
-
+<div class="rf_content">';
 	$variables['page'] .=
 '
 <div id="rf_wrapper">
@@ -153,6 +163,19 @@ function render_resource()
 	$variables['page'] .= '<tr><td>Link here:</td><td>'.$this_url.'</td></tr>';
 	$variables['page'] .= '<tr><td>Link here:</td><td>'.$file_url.'</td></tr>';
 	$variables['page'] .= '</tbody></table>';
+
+	$variables['page'] .= '</div>';
+
+	$variables['page'] .= '<iframe src="http://docs.google.com/viewer?embedded=true&url='.urlencode($file_url).'" width="600" height="780" style="border: none;"></iframe>';
+	$variables['page'] .= '<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, "script", "facebook-jssdk"));</script>
+<div class="fb-comments" data-href="'.$this_url.'" data-num-posts="2" data-width="470"></div>';
 
 	$variables['page'] .= '<div class="fb-comments" data-href="'.$this_url.'" data-num-posts="2" data-width="470"></div>';
 	$variables['page'] .= '</div><div class="clearer"></div></div>';
