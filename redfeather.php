@@ -19,6 +19,21 @@ call_back_list('resource', array( 'load_data', 'render_top','render_resource','r
 array_push($pages, 'manage_resources');
 call_back_list('manage_resources', array( 'save_data', 'load_data', 'render_top','render_manage_list','render_bottom'));
 
+if(is_dir("rf_plugins"))
+{
+	if ($dh = opendir($dir)) 
+	{
+		while (($file = readdir($dh)) !== false) 
+		{
+			if(is_file($file) && preg_match('/\.php$'))
+			{
+				include($file);
+			}
+		}
+		closedir($dh);
+	}
+
+}
 
 if(isset($_REQUEST['page']))
 {
@@ -31,6 +46,8 @@ else
 
 print $variables['page'];
 
+
+// FUNCTIONS FROM HERE ON DOWN
 function call($function_name)
 {
 	global $functions, $function_map;
@@ -98,14 +115,6 @@ function render_top()
 	<title>'.$variables['page_title'].'</title>
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
 </head><body>
-<div id="fb-root"></div>
-<script>(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) return;
-  js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1";
-  fjs.parentNode.insertBefore(js, fjs);
-}(document, "script", "facebook-jssdk"));</script>
 <div class="rf_content">';
 }
 
@@ -138,7 +147,16 @@ function render_resource()
 	$variables['page'] .= '</div>';
 
 	$variables['page'] .= '<iframe src="http://docs.google.com/viewer?embedded=true&url='.urlencode($file_url).'" width="600" height="780" style="border: none;"></iframe>';
-	$variables['page'] .= '<div class="fb-comments" data-href="'.$this_url.'" data-num-posts="2" data-width="470"></div>';
+	$variables['page'] .= '<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, "script", "facebook-jssdk"));</script>
+<div class="fb-comments" data-href="'.$this_url.'" data-num-posts="2" data-width="470"></div>';
+
 }
 
 function render_manage_list()
