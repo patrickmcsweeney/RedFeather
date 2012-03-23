@@ -161,7 +161,7 @@ function render_resource()
 	$variables['page'] .= '<tr><td>Updated:</td><td>'.date ("d F Y H:i:s.", filemtime($_REQUEST['file'])).'</td></tr>';
 	$variables['page'] .= '<tr><td>Licence:</td><td>'.$data['license'].'</td></tr>';
 	$variables['page'] .= '<tr><td>Link here:</td><td>'.$this_url.'</td></tr>';
-	$variables['page'] .= '<tr><td>Link here:</td><td>'.$file_url.'</td></tr>';
+	$variables['page'] .= '<tr><td>Download:</td><td><a target="_blank" href="'.$file_url.'">'.$file_url.'</a></td></tr>';
 	$variables['page'] .= '</tbody></table>';
 
 	$variables['page'] .= '</div>';
