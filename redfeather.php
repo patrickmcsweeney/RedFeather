@@ -8,6 +8,7 @@ $functions = array();
 $function_map = array('load_data'=>'load_data', 'save_data'=>'save_data', 'render_resource'=>'render_resource', 'render_top'=>'render_top', 'render_bottom'=>'render_bottom', 'render_manage_list'=>'render_manage_list');
 $variables = array('page'=>'');
 $variables['metadata_file'] = "rf_data.php";
+$variables['plugin_dir'] = "rf_plugins";
 
 // ensures that the metadata file exists
 touch($variables['metadata_file']);
@@ -19,15 +20,15 @@ call_back_list('resource', array( 'load_data', 'render_top','render_resource','r
 array_push($pages, 'manage_resources');
 call_back_list('manage_resources', array( 'save_data', 'load_data', 'render_top','render_manage_list','render_bottom'));
 
-if(is_dir("rf_plugins"))
+if(is_dir($variables["plugin_dir"]))
 {
-	if ($dh = opendir($dir)) 
+	if ($dh = opendir($variables["plugin_dir"])) 
 	{
 		while (($file = readdir($dh)) !== false) 
 		{
-			if(is_file($file) && preg_match('/\.php$'))
+			if(is_file($variables['plugin_dir'].'/'.$file) && preg_match('/\.php$/', $file))
 			{
-				include($file);
+				include($variables['plugin_dir'].'/'.$file);
 			}
 		}
 		closedir($dh);
