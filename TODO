@@ -1,11 +1,16 @@
-manage_resources page
+[done] manage_resources page
 	- needs to embody a fairly simple workflow. i dont think we are too far off. We should include some blurb about best practices
 
-resource page
+[done] resource page
 	- duplicate the functionality in the big demo but lets have a slicker style sheet	
 
-browse page
+[Matt] style
+	- it looks like poop, yo
+
+[Pat] browse page
 	- needs to list all the files we have metadata about in a clean way. Javascript search if its not too hard.
+
+
 
 RDF export
 	- straight forward serialization, got to be a bit careful about our choice of URIs
@@ -16,8 +21,16 @@ RSS export
 JSON export
 	- maybe just test to find out if we are on php5.1 and use theres
 
-user sessions
-	- sooner or later we need to sort out a basic authentication
 
-Bulk upload
+[off scope for monday] make everthing as a plugin
+	- this way we can test the plugin system to make sure it is adequate for our needs
+	- prevents us from having to work on one huge file
+	- we can determine what functionality should be in the core and create that file later
+
+[off scope for monday] user sessions
+	- sooner or later we need to sort out a basic authentication
+	- just a password - there is no need for a user account system
+
+[off scope for monday] Bulk upload
 	- gurn feature but you know we are gunna need it...
+
