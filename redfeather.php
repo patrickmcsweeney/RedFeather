@@ -97,8 +97,9 @@ function save_data()
 	{	
 		for($i=0; $i < count($_REQUEST["filenames"]); $i++)
 		{
-			$variables["data"][$_REQUEST["filenames"][$i]]["title"] = $_REQUEST["titles"][$i];
-			$variables["data"][$_REQUEST["filenames"][$i]]["description"] = $_REQUEST["descriptions"][$i];
+			$variables["data"][$_REQUEST["filenames"][$i]]["title"] = $_REQUEST["title"][$i];
+			$variables["data"][$_REQUEST["filenames"][$i]]["description"] = $_REQUEST["description"][$i];
+			$variables["data"][$_REQUEST["filenames"][$i]]["license"] = $_REQUEST["license"][$i];
 		}
 		$fh = fopen($variables["metadata_file"], "w");
 		fwrite($fh,serialize($variables['data']));
@@ -110,13 +111,30 @@ function save_data()
 function render_top()
 {
 	global $variables;
-	$variables['page_title'] = $_REQUEST['page'];
+	$variables['page_title'] = 'RedFeather';
 	$variables['page'] .= 
 '<html><head>
 	<title>'.$variables['page_title'].'</title>
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+	<link rel="stylesheet" href="http://meyerweb.com/eric/tools/css/reset/reset.css" type="text/css" />
+	<link rel="stylesheet" href="style" type="text/css" />
 </head><body>
 <div class="rf_content">';
+	$variables['page'] .=
+'
+<div id="rf_wrapper">
+<div id="rf_header">
+	<h1><span class="rf_red">Red</span>Feather<img src="http://users.ecs.soton.ac.uk/pm5/redfeather/biddocs/small_logo.png"/></h1>
+	<h2>Lightweight Resource Exhibition and Discovery</h2>
+</div>
+<div id="rf_content">';
+}
+
+function render_bottom()
+{
+	global $variables;
+	$variables['page'] .= '</div><div id="rf_footer">&copy; Copyright 2012 | <a target="_blank" href="http://blogs.ecs.soton.ac.uk/oneshare/tag/redfeather/">OneShare</a> </div></div>
+</html>';
 }
 
 function render_resource()
@@ -127,11 +145,12 @@ function render_resource()
 	$bits = explode('/', $this_url);
 	array_pop($bits);
 	$file_url = implode('/', $bits).'/'.$_REQUEST['file'];
-	$variables['page'] .= '<h1>RedFeather - '.$data['title'].'</h1>';
+	$variables['page'] .= '<h1>'.$data['title'].'</h1>';
 
-	$variables['page'] .= '<div class="rf_resource_main">';
+	$variables['page'] .= '<div id="rf_resource_main">';
 	
-	$variables['page'] .= '<div class="rf_resource_metadata">';
+	$variables['page'] .= '<iframe id="preview" src="http://docs.google.com/viewer?embedded=true&url='.urlencode($file_url).'" width="600" height="600" style="border: none;"></iframe>';
+	$variables['page'] .= '<div id="rf_resource_metadata">';
 
 	$variables['page'] .= '<h2>Description</h2>';
 	$variables['page'] .= '<p>'.$data['description'].'</p>';
@@ -140,7 +159,7 @@ function render_resource()
 	$variables['page'] .= '<table><tbody>';
 
 	$variables['page'] .= '<tr><td>Updated:</td><td>'.date ("d F Y H:i:s.", filemtime($_REQUEST['file'])).'</td></tr>';
-	$variables['page'] .= '<tr><td>Licence:</td><td>'.$data['licence'].'</td></tr>';
+	$variables['page'] .= '<tr><td>Licence:</td><td>'.$data['license'].'</td></tr>';
 	$variables['page'] .= '<tr><td>Link here:</td><td>'.$this_url.'</td></tr>';
 	$variables['page'] .= '<tr><td>Link here:</td><td>'.$file_url.'</td></tr>';
 	$variables['page'] .= '</tbody></table>';
@@ -158,12 +177,27 @@ function render_resource()
 }(document, "script", "facebook-jssdk"));</script>
 <div class="fb-comments" data-href="'.$this_url.'" data-num-posts="2" data-width="470"></div>';
 
+	$variables['page'] .= '<div class="fb-comments" data-href="'.$this_url.'" data-num-posts="2" data-width="470"></div>';
+	$variables['page'] .= '</div><div class="clearer"></div></div>';
+
+}
+
+function get_licenses()
+{
+	$cc = array();
+	$cc['by'] = 'Attribution';
+	$cc['by-sa'] = 'Attribution-ShareAlike';
+	$cc['by-nd'] = 'Attribution-NoDerivs';
+	$cc['by-nc'] = 'Attribution-NonCommercial';
+	$cc['by-nc-sa'] = 'Attribution-NonCommerical-ShareAlike';
+	$cc['by-nc-nd'] = 'Attribution-NonCommerical-NoDerivs';
+	return $cc;
 }
 
 function render_manage_list()
 {
 	global $variables;
-	$variables['page'] .= '<h1>RedFeather</h1>';
+	$variables['page'] .= '<h1>Manage Resources</h1>';
 
 	$dir = "./";
 
@@ -182,7 +216,6 @@ function render_manage_list()
 		if($file == $variables["metadata_file"]){continue;}
 		if(preg_match("/^\./", $file)){continue;}
 
-		$file_line =  "filename: $file : filetype: " . filetype($dir . $file) . "<br />\n";
 		if (isset($variables['data']["$file"])) {
 			$data = $variables['data']["$file"];
 			array_push($files_found_list, $file);
@@ -194,26 +227,39 @@ function render_manage_list()
 			$new_style_rule = ' rf_new_resource';
 			$new_file_count++;
 		}
-			$manage_resources_html .= sprintf( <<<BLOCK
-<div class="rf_metadata_input$new_style_rule">
+
+		$license_options = '';
+		foreach (get_licenses() as $key => $value)	
+		{
+			if (isset($variables['data'][$file]['license']) && $variables['data'][$file]['license'] == $key)
+				$selected = 'selected';
+			else
+				$selected = '';
+
+			$license_options .= sprintf( <<<BLOCK
+<option value="%s" %s autocomplete="off">%s</option>
+BLOCK
+			, $key, $selected, $value);
+		}
+
+		$manage_resources_html .= sprintf( <<<BLOCK
+<div class="rf_manageable$new_style_rule">
 <table><tbody>
-<tr><td>File name:</td><td><a href='$file' target='_blank'>$file</td></tr>
-<tr><td>Title:</td><td><input name="titles[]" value="%s" autocomplete="off" /></td></tr>
-<tr><td>Description:</td><td><textarea name="descriptions[]" autocomplete="off">%s</textarea></td></tr>
-<tr><td>Licence:</td><td><select name="licence">
-	<option value="foo bar baz" autocomplete="off">Foo Bar Baz</option>
-</select></td></tr></tbody></table>
+<tr><th colspan="2"><a href='$file' target='_blank'>$file</th></tr>
+<tr><td class="rf_table_left">Title</td><td><input name="title[]" value="%s" autocomplete="off" /></td></tr>
+<tr><td class="rf_table_left">Description</td><td><textarea name="description[]" autocomplete="off">%s</textarea></td></tr>
+<tr><td class="rf_table_left">Licence</td><td><select name="license[]">%s</select></td></tr></tbody></table>
 <input type="hidden" name="filenames[]" value="$file" />
 </div>
 BLOCK
-, $data["title"], $data["description"] );
+, $data["title"], $data["description"], $license_options );
 			
 	}
 		
 	// if there are any new resources give info at the top
 	if ($new_file_count)
 	{	
-		$variables["page"] .= "<p>$new_file_count new files found.</p>";
+		$variables["page"] .= "<div class='rf_message'>$new_file_count new files found.</div>";
 	}
 
 	// check whether any files are missing
@@ -239,9 +285,4 @@ BLOCK
 
 }
 
-function render_bottom()
-{
-	global $variables;
-	$variables['page'] .= '</div></body>
-</html>';
-}
+
