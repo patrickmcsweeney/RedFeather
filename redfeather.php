@@ -166,7 +166,6 @@ function render_resource()
 
 	$variables['page'] .= '</div>';
 
-	$variables['page'] .= '<iframe src="http://docs.google.com/viewer?embedded=true&url='.urlencode($file_url).'" width="600" height="780" style="border: none;"></iframe>';
 	$variables['page'] .= '<div id="fb-root"></div>
 <script>(function(d, s, id) {
   var js, fjs = d.getElementsByTagName(s)[0];
@@ -177,7 +176,6 @@ function render_resource()
 }(document, "script", "facebook-jssdk"));</script>
 <div class="fb-comments" data-href="'.$this_url.'" data-num-posts="2" data-width="470"></div>';
 
-	$variables['page'] .= '<div class="fb-comments" data-href="'.$this_url.'" data-num-posts="2" data-width="470"></div>';
 	$variables['page'] .= '</div><div class="clearer"></div></div>';
 
 }
