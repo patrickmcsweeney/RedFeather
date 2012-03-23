@@ -28,9 +28,10 @@ function render_browse()
 	$variables["page"] .= '<div class="rf_browse_list">';
 	foreach($variables["data"] as $filename => $data)
 	{
+		$url = $_SERVER["SCRIPT_NAME"]."?page=resource&file=".$filename;
 		$variables["page"] .= sprintf(<<<BLOCK
 <div class="rf_resource">
-	<h3 class="rf_resource_title">%s</h3>
+	<h3 class="rf_resource_title"><a href="$url">%s</a></h3>
 	<p class="rf_description">%s</p>
 	<div class="rf_last_modified">Last Modified: %s</div>
 	<div class="rf_licence">Licence: </div>
