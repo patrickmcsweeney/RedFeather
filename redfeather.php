@@ -98,6 +98,8 @@ function save_data()
 		for($i=0; $i < count($_REQUEST["filenames"]); $i++)
 		{
 			$variables["data"][$_REQUEST["filenames"][$i]]["title"] = $_REQUEST["title"][$i];
+			$variables["data"][$_REQUEST["filenames"][$i]]["creator"] = $_REQUEST["creator"][$i];
+			$variables["data"][$_REQUEST["filenames"][$i]]["creator_id"] = $_REQUEST["creator_id"][$i];
 			$variables["data"][$_REQUEST["filenames"][$i]]["description"] = $_REQUEST["description"][$i];
 			$variables["data"][$_REQUEST["filenames"][$i]]["license"] = $_REQUEST["license"][$i];
 		}
@@ -158,6 +160,7 @@ function render_resource()
 	$variables['page'] .= '<h2>Resource details</h2>';
 	$variables['page'] .= '<table><tbody>';
 
+	$variables['page'] .= '<tr><td>Creator:</td><td>'.$data['creator'].' &lt;<a href="mailto:'.$data['creator_id'].'">'.$data['creator_id'].'</a>&gt;</td></tr>';
 	$variables['page'] .= '<tr><td>Updated:</td><td>'.date ("d F Y H:i:s.", filemtime($_REQUEST['file'])).'</td></tr>';
 	$variables['page'] .= '<tr><td>Licence:</td><td>'.$data['license'].'</td></tr>';
 	$variables['page'] .= '<tr><td>Link here:</td><td>'.$this_url.'</td></tr>';
@@ -180,7 +183,7 @@ function render_resource()
 
 }
 
-function get_licenses()
+function licences()
 {
 	$cc = array();
 	$cc['by'] = 'Attribution';
@@ -221,13 +224,14 @@ function render_manage_list()
 		}
 		else
 		{
-			$data = array('title'=>'','description'=>'');
+			//the default data for the workflow
+			$data = array('title'=>'','description'=>'', 'creator'=>'', 'creator_id'=>'');
 			$new_style_rule = ' rf_new_resource';
 			$new_file_count++;
 		}
 
 		$license_options = '';
-		foreach (get_licenses() as $key => $value)	
+		foreach (licences() as $key => $value)	
 		{
 			if (isset($variables['data'][$file]['license']) && $variables['data'][$file]['license'] == $key)
 				$selected = 'selected';
@@ -245,12 +249,13 @@ BLOCK
 <table><tbody>
 <tr><th colspan="2"><a href='$file' target='_blank'>$file</th></tr>
 <tr><td class="rf_table_left">Title</td><td><input name="title[]" value="%s" autocomplete="off" /></td></tr>
+<tr><td class="rf_table_left">Creator</td><td>Name: <input name="creator[]" value="%s" autocomplete="off" /> Email:<input name="creator_id[]" value="%s" autocomplete="off" /></td></tr>
 <tr><td class="rf_table_left">Description</td><td><textarea name="description[]" autocomplete="off">%s</textarea></td></tr>
 <tr><td class="rf_table_left">Licence</td><td><select name="license[]">%s</select></td></tr></tbody></table>
 <input type="hidden" name="filenames[]" value="$file" />
 </div>
 BLOCK
-, $data["title"], $data["description"], $license_options );
+, $data["title"], $data["creator"], $data["creator_id"], $data["description"], $license_options );
 			
 	}
 		

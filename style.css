@@ -8,6 +8,7 @@ h1 {
 
 h2 {
 	font-style: italic;
+	font-size:120%;
 }
 
 a {
@@ -102,4 +103,32 @@ a:hover, a:active {
 
 .clearer {
 	clear:both;
+}
+
+.rf_resource {
+	margin: 40px 0 0 0;
+}
+
+
+.rf_resource p {
+	margin: 15px 0;
+	color: #999999;
+}
+
+.rf_resource .field_name {
+	color: #999999;
+}
+
+.rf_resource > span {
+	display: inline-block;
+	padding-right: 30px;
+}
+
+.rf_search {
+	font-size: 150%;
+	text-align: center;
+}
+
+.rf_search input {
+	font-size: inherit;
 }

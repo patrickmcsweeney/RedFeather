@@ -4,13 +4,20 @@ array_push($pages, 'browse');
 call_back_list('browse', array( 'load_data', 'render_top','render_browse','render_bottom'));
 $function_map["render_browse"] = "render_browse";
 	
+if(!isset($_REQUEST['page']))
+{
+        $_REQUEST['page'] = "browse";
+}
+
 
 function render_browse()
 {
 	global $variables;
 
+	$licences = licences();
+
 	$variables["page"] .= '<div class="rf_search">
-	Filter: <input id="rf_filter" onkeypress="filter()"type="text" value="" />
+	Search these resources: <input id="rf_filter" onkeypress="filter()"type="text" value="" />
 	<script type="text/javascript">
 		function filter(){
 			var filter = $("#rf_filter").val();
@@ -31,14 +38,14 @@ function render_browse()
 		$url = $_SERVER["SCRIPT_NAME"]."?page=resource&file=".$filename;
 		$variables["page"] .= sprintf(<<<BLOCK
 <div class="rf_resource">
-	<h3 class="rf_resource_title"><a href="$url">%s</a></h3>
+	<h2 class="rf_resource_title"><a href="$url">%s</a></h2>
 	<p class="rf_description">%s</p>
-	<div class="rf_last_modified">Last Modified: %s</div>
-	<div class="rf_licence">Licence: </div>
-	<div class="rf_download"><a href="$filename">Download</a></div>
+	<span class="rf_last_modified"><span class="field_name">Last Modified:</span> %s</span>
+	<span class="rf_licence"><span class="field_name">Licence:</span> %s</span>
+	<span class="rf_download"><a href="$filename">Download</a></span>
 </div>
 BLOCK
-, $data["title"], $data["description"], date ("d F Y - H:i", filemtime($filename))); 
+, $data["title"], $data["description"], date ("d F Y - H:i", filemtime($filename)), $licences[$data["license"]]); 
 	}
 	$variables["page"] .= '</div>';
 }
