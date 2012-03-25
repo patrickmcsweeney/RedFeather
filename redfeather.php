@@ -135,7 +135,7 @@ function render_top()
 function render_bottom()
 {
 	global $variables;
-	$variables['page'] .= '</div><div id="rf_footer">&copy; Copyright 2012 | <a target="_blank" href="http://blogs.ecs.soton.ac.uk/oneshare/tag/redfeather/">OneShare</a> </div></div>
+	$variables['page'] .= '</div><div id="rf_footer">&copy; Copyright 2012 | <a href="http://redfeather.ecs.soton.ac.uk">RedFeather Project</a> | <a target="_blank" href="http://blogs.ecs.soton.ac.uk/oneshare/tag/redfeather/">OneShare</a> | <a href="'.$_SERVER['SCRIPT_NAME'].'?page=manage_resources">Manage Resources</a></div></div>
 </html>';
 }
 
@@ -177,7 +177,7 @@ function render_resource()
   js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1";
   fjs.parentNode.insertBefore(js, fjs);
 }(document, "script", "facebook-jssdk"));</script>
-<div class="fb-comments" data-href="'.$this_url.'" data-num-posts="2" data-width="470"></div>';
+<div class="fb-comments" data-href="'.$this_url.'" data-num-posts="2" data-width="450"></div>';
 
 	$variables['page'] .= '</div>';
 
