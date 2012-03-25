@@ -132,3 +132,19 @@ a:hover, a:active {
 .rf_search input {
 	font-size: inherit;
 }
+
+#rf_resource_metadata p {
+	margin: 20px 0;
+}
+
+#rf_resource_metadata td {
+	padding: 10px 5px 10px 0;
+}
+
+#rf_resource_metadata table {
+	margin: 10px 0;
+}
+
+.fb-comments {
+	margin: 20px 0;
+}

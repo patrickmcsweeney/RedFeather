@@ -167,7 +167,7 @@ function render_resource()
 	$variables['page'] .= '<tr><td>Download:</td><td><a target="_blank" href="'.$file_url.'">'.$file_url.'</a></td></tr>';
 	$variables['page'] .= '</tbody></table>';
 
-	$variables['page'] .= '</div>';
+	$variables['page'] .= '<h2>Comments</h2>';
 
 	$variables['page'] .= '<div id="fb-root"></div>
 <script>(function(d, s, id) {
@@ -178,6 +178,8 @@ function render_resource()
   fjs.parentNode.insertBefore(js, fjs);
 }(document, "script", "facebook-jssdk"));</script>
 <div class="fb-comments" data-href="'.$this_url.'" data-num-posts="2" data-width="470"></div>';
+
+	$variables['page'] .= '</div>';
 
 	$variables['page'] .= '</div><div class="clearer"></div></div>';
 
