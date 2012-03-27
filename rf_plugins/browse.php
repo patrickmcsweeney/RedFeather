@@ -45,7 +45,7 @@ function render_browse()
 	<span class="rf_download"><a href="$filename">Download</a></span>
 </div>
 BLOCK
-, $data["title"], $data["description"], date ("d F Y - H:i", filemtime($filename)), $licences[$data["license"]]); 
+, $data["title"], $data["description"], is_file($filename) ? date ("d F Y - H:i", filemtime($filename)) : "unavailable", $licences[$data["license"]]); 
 	}
 	$variables["page"] .= '</div>';
 }
