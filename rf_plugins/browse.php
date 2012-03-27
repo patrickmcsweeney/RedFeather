@@ -14,7 +14,7 @@ function render_browse()
 {
 	global $variables;
 
-	$licences = licences();
+	$licenses = get_licenses();
 
 	$variables["page"] .= '<div class="rf_search">
 	Search these resources: <input id="rf_filter" onkeypress="filter()"type="text" value="" />
@@ -41,11 +41,11 @@ function render_browse()
 	<h2 class="rf_resource_title"><a href="$url">%s</a></h2>
 	<p class="rf_description">%s</p>
 	<span class="rf_last_modified"><span class="field_name">Last Modified:</span> %s</span>
-	<span class="rf_licence"><span class="field_name">Licence:</span> %s</span>
+	<span class="rf_license"><span class="field_name">License:</span> %s</span>
 	<span class="rf_download"><a href="$filename">Download</a></span>
 </div>
 BLOCK
-, $data["title"], $data["description"], date ("d F Y - H:i", filemtime($filename)), $licences[$data["license"]]); 
+, $data["title"], $data["description"], date ("d F Y - H:i", filemtime($filename)), $licenses[$data["license"]]); 
 	}
 	$variables["page"] .= '</div>';
 }
