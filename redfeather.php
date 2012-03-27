@@ -7,6 +7,7 @@ $pages = array();
 $functions = array();
 $function_map = array('load_data'=>'load_data', 'save_data'=>'save_data', 'render_resource'=>'render_resource', 'render_top'=>'render_top', 'render_bottom'=>'render_bottom', 'render_manage_list'=>'render_manage_list');
 $variables = array('page'=>'');
+$variables['rf_url'] = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
 $variables['metadata_file'] = "rf_data.php";
 $variables['plugin_dir'] = "rf_plugins";
 
@@ -162,7 +163,7 @@ function render_resource()
 	global $variables;
 	$licenses = get_licenses();
 	$data = $variables['data'][$_REQUEST['file']];	
-	$this_url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'?page=resource&file='.$_REQUEST['file'];
+	$this_url = $variables["rf_url"].'?page=resource&file='.$_REQUEST['file'];
 	$bits = explode('/', $this_url);
 	array_pop($bits);
 	$file_url = implode('/', $bits).'/'.$_REQUEST['file'];
