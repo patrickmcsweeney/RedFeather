@@ -224,7 +224,7 @@ function render_manage_list()
 	{
 
 		if(is_dir($dir.$file)){continue;}
-		if($file == $php_file){continue;}
+		if($file == $variables['rf_file']){continue;}
 		if($file == $variables["metadata_file"]){continue;}
 		if(preg_match("/^\./", $file)){continue;}
 
