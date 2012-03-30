@@ -4,23 +4,21 @@
 [done] resource page
 	- duplicate the functionality in the big demo but lets have a slicker style sheet	
 
-[Matt] style
+[done] style
 	- it looks like poop, yo
 
-[Pat] browse page
+[done] browse page
 	- needs to list all the files we have metadata about in a clean way. Javascript search if its not too hard.
 
+[done] RSS export
+	- if we can demo this working with expert JISC will be pleased
 
 
 RDF export
 	- straight forward serialization, got to be a bit careful about our choice of URIs
 
-RSS export
-	- if we can demo this working with expert JISC will be pleased
-
 JSON export
 	- maybe just test to find out if we are on php5.1 and use theres
-
 
 [off scope for monday] make everthing as a plugin
 	- this way we can test the plugin system to make sure it is adequate for our needs

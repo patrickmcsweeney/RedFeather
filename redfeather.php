@@ -8,21 +8,24 @@ $functions = array();
 $function_map = array('load_data'=>'load_data', 'save_data'=>'save_data', 'render_resource'=>'render_resource', 'render_top'=>'render_top', 'render_bottom'=>'render_bottom', 'render_manage_list'=>'render_manage_list');
 $variables = array('page'=>'');
 $variables['rf_url'] = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
+
+// Probably breaks with windows and other things which dont use /
+$variables['rf_file'] = array_pop(explode("/", $_SERVER["SCRIPT_NAME"]));
+
 $variables['metadata_file'] = "rf_data.php";
 $variables['plugin_dir'] = "rf_plugins";
 
 // ensures that the metadata file exists
 touch($variables['metadata_file']);
 
-
 array_push($pages, 'resource');
 call_back_list('resource', array( 'load_data', 'render_top','render_resource','render_bottom'));
 
 array_push($pages, 'manage_resources');
-call_back_list('manage_resources', array( 'load_data', 'render_top','render_manage_list','render_bottom'));
+call_back_list('manage_resources', array( 'authenticate','load_data', 'render_top','render_manage_list','render_bottom'));
 
 array_push($pages, 'save_resources');
-call_back_list('save_resources', array('save_data'));
+call_back_list('save_resources', array('authenitcate', 'save_data'));
 
 if(is_dir($variables["plugin_dir"]))
 {
@@ -216,9 +219,7 @@ function render_manage_list()
 	$manage_resources_html = '';
 	$files_found_list = array();
 		
-	// Probably breaks with windows and other things which dont use /
-	$php_file = array_pop(explode("/", $_SERVER["SCRIPT_NAME"]));
-	$variables["page"] .= "<form action='$php_file?page=save_resources' method='POST'>\n";
+	$variables["page"] .= "<form action='".$variables['rf_file']."?page=save_resources' method='POST'>\n";
 	foreach (scandir($dir) as $file)
 	{
 
