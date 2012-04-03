@@ -23,6 +23,9 @@ RDF export
 JSON export
 	- maybe just test to find out if we are on php5.1 and use theres
 
+OAI endpoint
+	- might be hard but we are gunna need one
+
 [off scope for monday] make everthing as a plugin
 	- this way we can test the plugin system to make sure it is adequate for our needs
 	- prevents us from having to work on one huge file
