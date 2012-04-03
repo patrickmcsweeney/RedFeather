@@ -28,7 +28,7 @@ JSON export
 	- prevents us from having to work on one huge file
 	- we can determine what functionality should be in the core and create that file later
 
-Update workflow 
+[first task done] Update workflow 
 	- each file being annotated should have an ID prefix instead of [] array syntax
 	- this allows us to have multiple fields for a single item
 	- example, a file may have multiple creators.

@@ -25,7 +25,7 @@ array_push($pages, 'manage_resources');
 call_back_list('manage_resources', array( 'authenticate','load_data', 'render_top','render_manage_list','render_bottom'));
 
 array_push($pages, 'save_resources');
-call_back_list('save_resources', array('authenitcate', 'save_data'));
+call_back_list('save_resources', array('authenticate', 'save_data'));
 
 if(is_dir($variables["plugin_dir"]))
 {
@@ -114,21 +114,21 @@ function save_data()
 {
 	global $variables;
 
-	if(isset($_REQUEST['filenames']) && is_array($_REQUEST['filenames']))
-	{	
-		for($i=0; $i < count($_REQUEST["filenames"]); $i++)
-		{
-			$variables["data"][$_REQUEST["filenames"][$i]]["title"] = $_REQUEST["titles"][$i];
-			$variables["data"][$_REQUEST["filenames"][$i]]["creator"] = $_REQUEST["creators"][$i];
-			$variables["data"][$_REQUEST["filenames"][$i]]["creator_id"] = $_REQUEST["creator_ids"][$i];
-			$variables["data"][$_REQUEST["filenames"][$i]]["description"] = $_REQUEST["descriptions"][$i];
-			$variables["data"][$_REQUEST["filenames"][$i]]["license"] = $_REQUEST["licenses"][$i];
-		}
-		$fh = fopen($variables["metadata_file"], "w");
-		fwrite($fh,serialize($variables['data']));
-		fclose($fh);
-
+	for ($i = 0; $i < $_REQUEST['resource_count']; $i++)
+	{
+		$filename = $_REQUEST["filename$i"];
+		if ($filename == null) continue;
+		$variables["data"][$filename]["title"] = $_REQUEST["title$i"];
+		$variables["data"][$filename]["description"] = $_REQUEST["description$i"];
+		$variables["data"][$filename]["creator"] = $_REQUEST["creator$i"];
+		$variables["data"][$filename]["email"] = $_REQUEST["email$i"];
+		$variables["data"][$filename]["license"] = $_REQUEST["license$i"];
 	}
+
+	$fh = fopen($variables["metadata_file"], "w");
+	fwrite($fh,serialize($variables['data']));
+	fclose($fh);
+
 	header('Location: redfeather.php?page=manage_resources');
 }
 
@@ -183,7 +183,7 @@ function render_resource()
 	$variables['page'] .= '<h2>Resource details</h2>';
 	$variables['page'] .= '<table><tbody>';
 
-	$variables['page'] .= '<tr><td>Creator:</td><td>'.$data['creator'].' &lt;<a href="mailto:'.$data['creator_id'].'">'.$data['creator_id'].'</a>&gt;</td></tr>';
+	$variables['page'] .= '<tr><td>Creator:</td><td>'.$data['creator'].' &lt;<a href="mailto:'.$data['email'].'">'.$data['email'].'</a>&gt;</td></tr>';
 	$variables['page'] .= '<tr><td>Updated:</td><td>'.date ("d F Y H:i:s.", filemtime($_REQUEST['file'])).'</td></tr>';
 	$variables['page'] .= '<tr><td>License:</td><td>'.$licenses[$data['license']].'</td></tr>';
 	$variables['page'] .= '<tr><td>Link here:</td><td>'.$this_url.'</td></tr>';
@@ -216,6 +216,7 @@ function render_manage_list()
 	$dir = "./";
 
 	$new_file_count = 0;
+	$num = 0;
 	$manage_resources_html = '';
 	$files_found_list = array();
 		
@@ -256,18 +257,19 @@ BLOCK
 		}
 
 		$manage_resources_html .= sprintf( <<<BLOCK
-<div class="rf_manageable$new_style_rule">
+<div class="rf_manageable$new_style_rule" id="resource$num">
 <table><tbody>
 <tr><th colspan="2"><a href='$file' target='_blank'>$file</th></tr>
-<tr><td class="rf_table_left">Title</td><td><input name="titles[]" value="%s" autocomplete="off" /></td></tr>
-<tr><td class="rf_table_left">Creator</td><td>Name: <input name="creators[]" value="%s" autocomplete="off" /> Email:<input name="creator_ids[]" value="%s" autocomplete="off" /></td></tr>
-<tr><td class="rf_table_left">Description</td><td><textarea name="descriptions[]" autocomplete="off">%s</textarea></td></tr>
-<tr><td class="rf_table_left">Licence</td><td><select name="licenses[]" autocomplete="off">%s</select></td></tr></tbody></table>
-<input type="hidden" name="filenames[]" value="$file" />
+<tr><td class="rf_table_left">Title</td><td><input name="title$num" value="%s" autocomplete="off" /></td></tr>
+<tr><td class="rf_table_left">Creator</td><td>Name: <input name="creator$num" value="%s" autocomplete="off" /> Email:<input name="email$num" value="%s" autocomplete="off" /></td></tr>
+<tr><td class="rf_table_left">Description</td><td><textarea name="description$num" autocomplete="off">%s</textarea></td></tr>
+<tr><td class="rf_table_left">Licence</td><td><select name="license$num" autocomplete="off">$license_options</select></td></tr></tbody></table>
+<input type="hidden" name="filename$num" value="$file" />
 </div>
 BLOCK
-, $data["title"], $data["creator"], $data["creator_id"], $data["description"], $license_options );
-			
+, $data["title"], $data["creator"], $data["email"], $data["description"] );
+		
+		$num++;
 	}
 		
 	// if there are any new resources give info at the top
@@ -278,21 +280,21 @@ BLOCK
 
 	// check whether any files are missing
 	$missing_resources_html = '';
-	$missing_resource_autonumber = 1;
 
 	foreach ($variables['data'] as $key => $value) {
 		if (! in_array($key, $files_found_list))
 		{
 			$missing_resources_html .= sprintf( <<<BLOCK
-<div class="rf_manageable" id="missing$missing_resource_autonumber"><p>Resource not found: $key <input type="hidden" name="titles[]" value="%s" /><input type="hidden" name="creators[]" value="%s" /><input type="hidden" name="creator_ids[]" value="%s" /><input type="hidden" name="descriptions[]" value="%s" /><input type="hidden" name="licenses[]" value="%s" /><input type="hidden" name="filenames[]" value="$key" /><a href="#" onclick="javascript:$('#missing$missing_resource_autonumber').remove();">delete metadata</a></p></div>
+<div class="rf_manageable" id="resource$num"><p>Resource not found: $key <input type="hidden" name="title$num" value="%s" /><input type="hidden" name="creator$num" value="%s" /><input type="hidden" name="email$num" value="%s" /><input type="hidden" name="description$num" value="%s" /><input type="hidden" name="license$num" value="%s" /><input type="hidden" name="filename$num" value="$key" /><a href="#" onclick="javascript:$('#resource$num').remove();">delete metadata</a></p></div>
 BLOCK
-, $value["title"], $value["creator"], $value["creator_id"], $value["description"], $value["license"] );
-			$missing_resource_autonumber++;
+, $value["title"], $value["creator"], $value["email"], $value["description"], $value["license"] );
+			$num++;
 		}
 	}
 	
 	$variables["page"] .= $missing_resources_html;
 	$variables["page"] .= $manage_resources_html;
+	$variables["page"] .= "<input type='hidden' name='resource_count' value='$num' />\n";
 	$variables["page"] .= "<input type='submit' value='Save' />\n";
 	$variables["page"] .= "</form>\n";
 }
