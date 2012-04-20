@@ -35,4 +35,8 @@ JSON export
 
 [off scope for monday] Bulk upload
 	- gurn feature but you know we are gunna need it...
+	- I think this should be a plugin and not part of the standard suite (mrt)
 
+[new potential feature] Download archive as ZIP
+	- need to scope out what exactly will be downloaded in terms of metadata and files
+	- also, whether or not to export as plain html (so you don't need the php)
