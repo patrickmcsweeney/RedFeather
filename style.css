@@ -87,7 +87,7 @@ a:hover, a:active {
 	text-decoration: none;
 }
 
-.rf_table_left {
+tr>:first-child {
 	font-weight: bold;
 	padding-right: 30px;
 }
