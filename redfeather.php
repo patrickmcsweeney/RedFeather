@@ -167,7 +167,7 @@ function render_resource()
 	$licenses = get_licenses();
 	$data = $variables['data'][$_REQUEST['file']];	
 	$this_url = $variables["rf_url"].'?page=resource&file='.$_REQUEST['file'];
-	$bits = explode('/', $this_url);
+	$bits = explode('/', $variables['rf_url']);
 	array_pop($bits);
 	$file_url = implode('/', $bits).'/'.$_REQUEST['file'];
 	$variables['page'] .= '<h1>'.$data['title'].'</h1>';
