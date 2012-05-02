@@ -71,8 +71,23 @@ a:hover, a:active {
 	margin-bottom: 20px;
 }
 
+.rf_new_resources {
+	border-left: 2px red dashed;
+	padding-left: 20px;
+	margin-bottom: 20px;
+}
+
+.rf_new_resources > p {
+	margin-bottom:30px;
+}
+
+
 .rf_manageable {
 	margin-bottom:30px;
+}
+
+.rf_manageable:last-child {
+	margin-bottom:0px;
 }
 
 .rf_manageable td, .rf_manageable th {
@@ -109,7 +124,6 @@ tr>:first-child {
 .clearer {
 	clear:both;
 }
-
 .rf_resource {
 	margin: 40px 0 0 0;
 }

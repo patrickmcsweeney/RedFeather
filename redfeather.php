@@ -18,12 +18,6 @@ $variables['plugin_dir'] = "rf_plugins";
 // ensures that the metadata file exists
 touch($variables['metadata_file']);
 
-
-// define the fields
-$variables['fields'] = array('filename', 'title', 'description', 'creators', 'license');
-
-
-
 array_push($pages, 'resource');
 call_back_list('resource', array( 'load_data', 'render_top','render_resource','render_bottom'));
 
@@ -31,7 +25,7 @@ array_push($pages, 'manage_resources');
 call_back_list('manage_resources', array( 'authenticate','load_data', 'render_top','render_manage_list','render_bottom'));
 
 array_push($pages, 'save_resources');
-call_back_list('save_resources', array('authenticate', 'save_data'));
+call_back_list('save_resources', array('authenticate','load_data','save_data'));
 
 if(is_dir($variables["plugin_dir"]))
 {
@@ -105,10 +99,7 @@ function get_licenses()
 function load_data()
 {
 	global $variables;
-
-	
 	$variables['data'] = unserialize(file_get_contents($variables['metadata_file']));
-
 	if(!is_array($variables["data"]) )
 	{
 		$variables["data"]= array();
@@ -119,6 +110,8 @@ function load_data()
 function save_data()
 {
 	global $variables;
+	$old_data = $variables["data"];
+	$variables["data"] = array();
 	for ($i = 0; $i < $_REQUEST['resource_count']; $i++)
 	{
 		$filename = $_REQUEST["filename$i"];
@@ -128,6 +121,10 @@ function save_data()
 			if (preg_match("/(.*)($i\$)/", $key, $matches))
 				$variables["data"][$filename][$matches[1]] = $value;
 	}
+
+	if (isset($_REQUEST['missing']))
+		foreach ($_REQUEST['missing'] as $missed)
+			$variables['data'][$missed] = $old_data[$missed];
 
 	$fh = fopen($variables["metadata_file"], "w");
 	fwrite($fh,serialize($variables['data']));
@@ -211,24 +208,17 @@ function render_resource()
 
 }
 
-function render_managed_filename($data, $num) { 
-	return "<tr><th colspan='2'><a href='".$data['filename']."' target='_blank'>".$data['filename']."</th></tr><input type='hidden' name='filename$num' value='".$data['filename']."' />";
-}
 
-function render_managed_title($data, $num) { 
-	return "<tr><td>Title</td><td><input name='title$num' value='".$data['title']."' autocomplete='off' /></td></tr>";
-}
-
-function render_managed_description($data, $num) { 
-	return "<tr><td>Description</td><td><textarea name='description$num' autocomplete='off'>".$data['description']."</textarea></td></tr>";
-}
-
-function render_managed_creators($data, $num) { 
-	return "<tr><td>Creator</td><td>Name: <input name='creator$num' value='".$data['creator']."' autocomplete='off' /> Email:<input name='email$num' value='".$data['email']."' autocomplete='off' /></td></tr>";
-}
-
-function render_managed_license($data, $num)
+function render_managed($data, $num)
 {
+	global $variables;
+	$item_html = "<table><tbody>";
+	$item_html .= "<tr><th colspan='2'><a href='".$data['filename']."' target='_blank'>".$data['filename']."</th></tr><input type='hidden' name='filename$num' value='".$data['filename']."' />";
+	$item_html .= "<tr><td>Title</td><td><input name='title$num' value='".$data['title']."' autocomplete='off' /></td></tr>";
+	$item_html .= "<tr><td>Description</td><td><textarea name='description$num' autocomplete='off'>".$data['description']."</textarea></td></tr>";
+	$item_html .= "<tr><td>Creator</td><td><input name='creator$num' value='".$data['creator']."' autocomplete='off' /></td></tr>";
+	$item_html .= "<tr><td>Email</td><td><input name='email$num' value='".$data['email']."' autocomplete='off' /></td></tr>";
+
 	$license_options = "";
 	foreach (get_licenses() as $key => $value)	
 	{
@@ -240,17 +230,7 @@ function render_managed_license($data, $num)
 		$license_options .= "<option value='$key' $selected autocomplete='off'>$value</option>";
 	}
 
-	return "<tr><td class='rf_table_left'>Licence</td><td><select name='license$num' autocomplete='off'>$license_options</select></td></tr>";
-}
-
-function render_managed($data, $num)
-{
-	global $variables;
-	$item_html = "<table><tbody>";
-	foreach ($variables['fields'] as $field)
-	{
-		$item_html .= call_user_func("render_managed_".$field, $data, $num);
-	}
+	$item_html .= "<tr><td class='rf_table_left'>Licence</td><td><select name='license$num' autocomplete='off'>$license_options</select></td></tr>";
 	$item_html .= "</tbody></table>";
 
 	return $item_html;
@@ -267,6 +247,7 @@ function render_manage_list()
 	$new_file_count = 0;
 	$num = 0;
 	$manage_resources_html = '';
+	$new_resources_html = '';
 	$files_found_list = array();
 		
 	$variables["page"] .= "<form action='".$variables["rf_file"]."?page=save_resources' method='POST'>\n";
@@ -280,44 +261,36 @@ function render_manage_list()
 		if (isset($variables["data"]["$file"])) {
 			$data = $variables["data"]["$file"];
 			array_push($files_found_list, $file);
-			$new_style_rule = '';
+			$manage_resources_html .= "<div class='rf_manageable' id='resource$num'>".render_managed($data, $num)."</div>";
 		}
 		else
 		{
 			//the default data for the workflow
-			$data = array('title'=>'','description'=>'', 'creators'=>'', 'license'=>'');
-			$new_style_rule = ' rf_new_resource';
+			$data = array('filename'=>$file,'title'=>'','description'=>'', 'creator'=>'','email'=>'', 'license'=>'');
+			$new_resources_html .= "<div class='rf_manageable' id='resource$num'>".render_managed($data, $num)."</div>";
 			$new_file_count++;
 		}
-
-		$manage_resources_html .= "<div class='rf_manageable$new_style_rule' id='resource$num'>";
-		$manage_resources_html .= render_managed($data, $num);
-		$manage_resources_html .= "</div>";
-	
 		$num++;
 	}
 		
-	// if there are any new resources give info at the top
-	if ($new_file_count)
-	{	
-		$variables["page"] .= "<div class='rf_manageable'>$new_file_count new files found.</div>";
-	}
-
+	
 	// check whether any files are missing
 	$missing_resources_html = '';
+	$missing_num = 0;
 
 	foreach ($variables['data'] as $key => $value) {
 		if (! in_array($key, $files_found_list))
 		{
-			$missing_resources_html .= "<div class='rf_manangeable' id='resource$num'><p>Resource not found: $key <a href='#' onclick='javascript:$(\"#resource$num\").remove();'>delete metadata</a></p>";
-			// insert existing metadata heeeeere	
-			$missing_resources_html .= "</div>";
-			$num++;
+			$missing_resources_html .= "<div class='rf_manageable' id='missing$missing_num'><p>Resource not found: $key <a href='#' onclick='javascript:$(\"#missing$missing_num\").remove();'>delete metadata</a></p><input type='hidden' name='missing[]' value='$key'/></div>";
+			$missing_num++;
 		}
 	}
 	
 	$variables["page"] .= $missing_resources_html;
-	$variables["page"] .= $manage_resources_html;
+	if ($new_file_count) $variables["page"] .= "<div class='rf_new_resources'><p>$new_file_count new files found.</p>".$new_resources_html."</div>";
+
+
+	$variables["page"] .= "<div>$manage_resources_html</div>";
 	$variables["page"] .= "<input type='hidden' name='resource_count' value='$num'/>";
 	$variables["page"] .= "<input type='submit' value='Save'/>";
 	$variables["page"] .= "</form>";
